@@ -74,11 +74,18 @@ class LibTesseract:
     lib.freeme.restype = None
     lib.freeme.argtypes = (ctypes.c_void_p,)
 
+    @staticmethod
+    def _get_arg_image_dir(image_dir):
+        """Transform variable image path to understandable array in C"""
+        if not os.path.exists(image_dir):
+            raise ValueError('The "{}" file does not exist!'.format(image_dir))
+
+        image_dir = image_dir.encode('utf-8')
+        return (ctypes.c_char * len(image_dir))(*image_dir)
+
     @classmethod
     def simple_read(cls, config, image_dir):
-        image_dir = image_dir.encode('ascii')
-        arg_image_dir = (ctypes.c_char * len(image_dir))(*image_dir)
-        buff_pointer = cls.lib.simple_read(config, arg_image_dir)
+        buff_pointer = cls.lib.simple_read(config, cls._get_arg_image_dir(image_dir))
         buff_value = ctypes.cast(buff_pointer, ctypes.c_char_p).value.decode('utf-8')
 
         cls.lib.freeme(buff_pointer)
@@ -87,10 +94,7 @@ class LibTesseract:
 
     @classmethod
     def read_and_get_confidence_char(cls, config, image_dir):
-        image_dir = image_dir.encode('ascii')
-        arg_image_dir = (ctypes.c_char * len(image_dir))(*image_dir)
-
-        lib_return = cls.lib.read_and_get_confidence_char(config, arg_image_dir)
+        lib_return = cls.lib.read_and_get_confidence_char(config, cls._get_arg_image_dir(image_dir))
         to_return = []
         for i in lib_return:
             if i.letter == b'\x00':
@@ -102,16 +106,11 @@ class LibTesseract:
         return to_return
 
     @classmethod
-    def read_and_get_confidence_word(cls, config, arg_image_dir):
-        arg_image_dir = arg_image_dir.encode('ascii')
-        arg_arg_image_dir = (ctypes.c_char * len(arg_image_dir))(*arg_image_dir)
-
-        lib_return = cls.lib.read_and_get_confidence_word(config, arg_arg_image_dir)
+    def read_and_get_confidence_word(cls, config, image_dir):
+        lib_return = cls.lib.read_and_get_confidence_word(config, cls._get_arg_image_dir(image_dir))
         to_return = []
-        to_free = []
         for i in range(lib_return.length):
             current = lib_return.cw[i]
-            to_free.append(lib_return.cw[i])
             to_return.append((ctypes.cast(current.word, ctypes.c_char_p).value.decode('utf-8'), current.percent))
 
         cls.lib.freeme(lib_return.cw)
