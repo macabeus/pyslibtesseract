@@ -32,6 +32,7 @@ struct tesseract_config {
     int variables_count;
     struct tesseract_variable* variables;
     tesseract::PageSegMode psm;
+    bool get_hocr;
 };
 
 struct confidence_char {
@@ -128,7 +129,12 @@ extern "C" char* simple_read(struct tesseract_config config, char* image_dir) {
 
     set_config(config, tes_api)
 
-    char* text = tes_api->GetUTF8Text();
+    char* text;
+    if (config.get_hocr) {
+        text = tes_api->GetHOCRText(0);
+    }  else {
+        text = tes_api->GetUTF8Text();
+    }
     char* buff = (char*) malloc((sizeof(char) * strlen(text)) + 1);
     strcpy(buff, text);
     delete[] text;

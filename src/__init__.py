@@ -40,14 +40,15 @@ class TesseractConfig(ctypes.Structure):
     _fields_ = (('lang', ctypes.c_char * 8),
                 ('variables_count', ctypes.c_int),
                 ('variables', ctypes.POINTER(TesseractVariable)),
-                ('psm', ctypes.c_int))
+                ('psm', ctypes.c_int),
+                ('hocr', ctypes.c_bool))
 
-    def __init__(self, lang='eng', psm=0):
+    def __init__(self, lang='eng', psm=0, hocr=False):
         if type(psm) == PageSegMode:
             psm = psm.value
         lang = lang.encode('ascii')
         self.obj_variables = []
-        super().__init__(lang=lang, variables_count=0, psm=psm)
+        super().__init__(lang=lang, variables_count=0, psm=psm, hocr=hocr)
 
     def add_variable(self, name, value):
         name = name.encode('ascii')
@@ -90,7 +91,10 @@ class LibTesseract:
 
         cls.lib.freeme(buff_pointer)
 
-        return buff_value[:-2]
+        if config.hocr:
+            return buff_value[:-1]
+        else:
+            return buff_value[:-2]
 
     @classmethod
     def read_and_get_confidence_char(cls, config, image_dir):
@@ -119,15 +123,21 @@ class LibTesseract:
 
 
 if __name__ == '__main__':
+    # Char
     config_single_char = TesseractConfig(psm=PageSegMode.PSM_SINGLE_CHAR)
     config_single_char.add_variable('tessedit_char_whitelist', 'QWERTYUIOPASDFGHJKLZXCVBNM')
     print(LibTesseract.read_and_get_confidence_char(config_single_char, 'char1.png'))
     print(LibTesseract.read_and_get_confidence_char(config_single_char, 'char2.png'))
 
+    # Line
     config_line = TesseractConfig(psm=PageSegMode.PSM_SINGLE_LINE)
     print(LibTesseract.simple_read(config_line, 'phrase1.png'))
     print(LibTesseract.read_and_get_confidence_word(config_line, 'phrase1.png'))
     print(LibTesseract.simple_read(config_line, 'phrase2.png'))
     print(LibTesseract.read_and_get_confidence_word(config_line, 'phrase2.png'))
-    print(LibTesseract.simple_read(config_line, 'phrase3.png'))
-    print(LibTesseract.read_and_get_confidence_word(config_line, 'phrase3.png'))
+
+    # hOCR
+    config_line_with_hocr = TesseractConfig(psm=PageSegMode.PSM_SINGLE_LINE, hocr=True)
+    print(LibTesseract.simple_read(config_line_with_hocr, 'phrase3.png'))
+    config_line.hocr = True
+    print(LibTesseract.simple_read(config_line, 'phrase1.png'))
