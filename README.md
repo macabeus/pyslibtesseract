@@ -68,3 +68,24 @@ Read a char, say confidence and other possible characters
 
     >>> LibTesseract.read_and_get_confidence_char(config_single_char, 'char.png')
     [('E', 58.27500915527344), ('Y', 56.93630599975586), ('F', 56.4453125), ('T', 51.12168884277344), ('Q', 47.19916534423828), ('W', 46.1181640625), ('V', 45.31656265258789), ('G', 43.49636459350586)]
+
+### hOCR
+If you want a return with <a href="https://en.wikipedia.org/wiki/HOCR">hOCR</a> format, you need a create config with `hocr=True`
+
+    >>> config_line_with_hocr = TesseractConfig(psm=PageSegMode.PSM_SINGLE_LINE, hocr=True)
+    
+or edit a alredy exist config
+
+    >>> config_line.hocr = True
+    
+Then, use a method `simple_read`
+
+    >>> LibTesseract.simple_read(config_line_with_hocr, 'phrase.png')
+      <div class='ocr_page' id='page_1' title='image ""; bbox 0 0 319 33; ppageno 0'>
+       <div class='ocr_carea' id='block_1_1' title="bbox 0 0 319 33">
+        <p class='ocr_par' dir='ltr' id='par_1_1' title="bbox 10 13 276 25">
+         <span class='ocr_line' id='line_1_1' title="bbox 10 13 276 25; baseline 0 0"><span class='ocrx_word' id='word_1_1'     title='bbox 10 14 41 25; x_wconf 75' lang='eng' dir='ltr'><strong>the</strong></span> <span class='ocrx_word' id='word_1_2' title='bbox 53 13 97 25; x_wconf 84' lang='eng' dir='ltr'><strong>book</strong></span> <span class='ocrx_word' id='word_1_3' title='bbox 111 13 129 25; x_wconf 79' lang='eng' dir='ltr'><strong>is</strong></span> <span class='ocrx_word' id='word_1_4' title='bbox 143 17 164 25; x_wconf 83' lang='eng' dir='ltr'>on</span> <span class='ocrx_word' id='word_1_5' title='bbox 178 14 209 25; x_wconf 75' lang='eng' dir='ltr'><strong>the</strong></span> <span class='ocrx_word' id='word_1_6' title='bbox 223 14 276 25; x_wconf 76' lang='eng' dir='ltr'><strong>table</strong></span> 
+         </span>
+        </p>
+       </div>
+      </div>
