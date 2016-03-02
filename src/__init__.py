@@ -64,13 +64,13 @@ class LibTesseract:
     lib = ctypes.CDLL(my_path + '/cppcode/libpyslibtesseract.so')
 
     lib.simple_read.restype = ctypes.POINTER(ctypes.c_char)
-    lib.simple_read.argtypes = (TesseractConfig, ctypes.POINTER(ctypes.c_char))
+    lib.simple_read.argtypes = (TesseractConfig, ctypes.c_char_p)
 
     lib.read_and_get_confidence_char.restype = ctypes.POINTER(ConfidenceChar)
-    lib.read_and_get_confidence_char.argtypes = (TesseractConfig, ctypes.POINTER(ctypes.c_char))
+    lib.read_and_get_confidence_char.argtypes = (TesseractConfig, ctypes.c_char_p)
 
     lib.read_and_get_confidence_word.restype = ConfidenceWordInit
-    lib.read_and_get_confidence_word.argtypes = (TesseractConfig, ctypes.POINTER(ctypes.c_char))
+    lib.read_and_get_confidence_word.argtypes = (TesseractConfig, ctypes.c_char_p)
 
     lib.freeme.restype = None
     lib.freeme.argtypes = (ctypes.c_void_p,)
@@ -81,8 +81,7 @@ class LibTesseract:
         if not os.path.exists(image_dir):
             raise ValueError('The "{}" file does not exist!'.format(image_dir))
 
-        image_dir = image_dir.encode('utf-8')
-        return (ctypes.c_char * len(image_dir))(*image_dir)
+        return image_dir.encode('utf-8')
 
     @classmethod
     def simple_read(cls, config, image_dir):
