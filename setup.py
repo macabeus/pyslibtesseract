@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='pyslibtesseract',
-    version='0.0.5',
+    version='0.0.7',
     author='Bruno Macabeus',
     description=('Integration of Tesseract for Python using a shared library'),
     keywords='python-tesseract OCR Python',
